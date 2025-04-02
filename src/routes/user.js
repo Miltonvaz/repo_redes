@@ -8,6 +8,6 @@ router.post('/register', registerUser);
 router.post('/login', loginUser);
 router.get('/profile', verifyToken, getUserProfile);
 router.post('/upload-video', verifyToken, upload.single('video'), uploadVideo);
-router.get('/videos', verifyToken, getAllVideos); // Endpoint para obtener todos los videos
+router.get('/videos', verifyToken, getAllVideos); 
 
 module.exports = { userRoutes: router };
