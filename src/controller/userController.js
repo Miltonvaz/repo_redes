@@ -45,6 +45,7 @@ const loginUser = async (req, res) => {
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) return res.status(400).json({ message: "Contraseña incorrecta" });
 
+    // Generando el token con el userId
     const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, { expiresIn: '1h' });
     res.json({ token });
   } catch (error) {
@@ -98,9 +99,31 @@ const uploadVideo = (req, res) => {
     });
 };
 
+const getAllVideos = async (req, res) => {
+  try {
+    const userId = req.user.userId; // Se obtiene el userId del token
+
+    if (!userId) {
+      return res.status(400).json({ message: 'User ID is required' });
+    }
+
+    const [videos] = await pool.execute('SELECT id, video_name, video_url FROM videos WHERE user_id = ?', [userId]);
+
+    if (videos.length === 0) {
+      return res.status(404).json({ message: 'No se han encontrado videos para este usuario' });
+    }
+
+    res.json({ videos });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Error al obtener los videos' });
+  }
+};
+
 module.exports = {
   registerUser,
   loginUser,
   getUserProfile,
   uploadVideo,
+  getAllVideos,
 };
